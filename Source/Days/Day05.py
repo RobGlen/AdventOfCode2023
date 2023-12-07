@@ -45,8 +45,12 @@ def execute_day_part2(data, maps, seeds):
         found_ranges = []
         final_ranges = []
         ranges_to_test = [(current_range[1], current_range[2])]
+        unfound_ranges = []
         while len(ranges_to_test) != 0:
+            was_range_found = False
             for element in elements:
+                if len(ranges_to_test) == 0:
+                    break
                 range_to_test = ranges_to_test[0]
                 dest, source, range_length = element
                 # new_lower = range_to_test[0]
@@ -55,8 +59,8 @@ def execute_day_part2(data, maps, seeds):
                 source_range = range(max(range_to_test[0], source), min(range_to_test[1], source + range_length))
 
                 if source_range.start < source_range.stop:
-                    #ranges_to_test.remove(range_to_test)
-
+                    ranges_to_test.remove(range_to_test)
+                    was_range_found = True
                     new_lower = dest + (source_range.start - source)
                     new_upper = dest + (source_range.stop - source)
                     found_ranges.append((name, new_lower, new_upper))
@@ -66,16 +70,19 @@ def execute_day_part2(data, maps, seeds):
                         ranges_to_test.append((range_to_test[0], source_range.start))
                     if remainders[1] > 0:
                         ranges_to_test.append((source_range.stop, range_to_test[1]))
-                else:
-                    break
-            #if len(found_ranges) == 0:
+            if not was_range_found:
+                unfound_ranges.append(range_to_test)
+                ranges_to_test.remove(range_to_test)
         found_ranges.sort(key=lambda x: x[1])
-        
         for found_range in found_ranges:
             final_ranges.extend(process_map(found_range, maps, idx+1))
-        if len(found_ranges) == 0:
-            new_range = (name, current_range[1], current_range[2])
+        for unfound in unfound_ranges:
+            new_range = (name, unfound[0], unfound[1])
             final_ranges.extend(process_map(new_range, maps, idx+1))
+        if len(found_ranges) == 0:
+            new_range = (name, range_to_test[0], range_to_test[1])
+            final_ranges.extend(process_map(new_range, maps, idx+1))
+        
         final_ranges.sort(key=lambda x: x[1])
         return final_ranges
     
@@ -92,6 +99,7 @@ def execute_day_part2(data, maps, seeds):
     print(" ")
     for location in locations:
         print(location)
+    print(locations[0][1])
 
 def execute_day(part):
     if part != 1 and part != 2:
