@@ -35,6 +35,4 @@ def execute_day(part):
         win_multiplier *= num_wins
     print(win_multiplier)
 
-
-
 execute_day(2)
