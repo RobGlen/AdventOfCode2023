@@ -44,51 +44,45 @@ def execute_day_part2(data, maps, seeds):
         print(current_range)
         found_ranges = []
         final_ranges = []
-        ranges_to_test = [(current_range[1], current_range[2])]
-        unfound_ranges = []
-        while len(ranges_to_test) != 0:
-            was_range_found = False
-            for element in elements:
-                if len(ranges_to_test) == 0:
-                    break
-                range_to_test = ranges_to_test[0]
-                dest, source, range_length = element
-                # new_lower = range_to_test[0]
-                # new_upper = range_to_test[1]
+        is_range_found = False
+        for element in elements:
+            dest, source, range_length = element
+            source_end = source + range_length
+            
+            source_range = range(max(current_range[1], source), min(current_range[2], source_end))
+
+            if source_range.start < source_range.stop:
+                is_range_found = True
+                new_lower = dest + (source_range.start - source)
+                new_upper = dest + (source_range.stop - source)
                 
-                source_range = range(max(range_to_test[0], source), min(range_to_test[1], source + range_length))
+                results = process_map((name, new_lower, new_upper), maps, idx+1)
 
-                if source_range.start < source_range.stop:
-                    ranges_to_test.remove(range_to_test)
-                    was_range_found = True
-                    new_lower = dest + (source_range.start - source)
-                    new_upper = dest + (source_range.stop - source)
-                    found_ranges.append((name, new_lower, new_upper))
-
-                    remainders = (source_range.start - range_to_test[0], range_to_test[1] - source_range.stop)
-                    if remainders[0] > 0:
-                        ranges_to_test.append((range_to_test[0], source_range.start))
-                    if remainders[1] > 0:
-                        ranges_to_test.append((source_range.stop, range_to_test[1]))
-            if not was_range_found:
-                unfound_ranges.append(range_to_test)
-                ranges_to_test.remove(range_to_test)
-        found_ranges.sort(key=lambda x: x[1])
-        for found_range in found_ranges:
-            final_ranges.extend(process_map(found_range, maps, idx+1))
-        for unfound in unfound_ranges:
-            new_range = (name, unfound[0], unfound[1])
-            final_ranges.extend(process_map(new_range, maps, idx+1))
-        if len(found_ranges) == 0:
-            new_range = (name, range_to_test[0], range_to_test[1])
-            final_ranges.extend(process_map(new_range, maps, idx+1))
+                remainders = (source - current_range[1], current_range[2] - source_end)
+                if remainders[0] > 0:
+                    results.extend(process_map((current_range[0], current_range[1], source), maps, idx))
+                if remainders[1] > 0:
+                    results.extend(process_map((current_range[0], source_end, current_range[2]), maps, idx))
+                for result in results:
+                    if result not in final_ranges:
+                        final_ranges.append(result)
+            if is_range_found:
+                break
+        if not is_range_found:
+            new_range = (name, current_range[1], current_range[2])
+            results = process_map(new_range, maps, idx+1)
+            for result in results:
+                if result not in final_ranges:
+                    final_ranges.append(result)
         
         final_ranges.sort(key=lambda x: x[1])
         return final_ranges
     
     new_seeds = []
-    new_seeds.append(("seeds", seeds[0], seeds[0] + seeds[1] - 1))
-    new_seeds.append(("seeds", seeds[2], seeds[2] + seeds[3] - 1))
+    seeds_idx = 0
+    while seeds_idx < len(seeds):
+        new_seeds.append(("seeds", seeds[seeds_idx], seeds[seeds_idx] + seeds[seeds_idx + 1] - 1))
+        seeds_idx += 2
     seeds = new_seeds
 
     locations = []
