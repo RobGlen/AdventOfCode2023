@@ -29,12 +29,6 @@ def handle_part2(directions_dict, turnings):
     current_locs = list(filter(lambda x: 'A' in x, directions_dict.keys()))
 
     turning_idx = 0
-    #steps = 0
-    # while(not all_zs(current_locs)):
-    #     for idx, current_loc in enumerate(current_locs):
-    #         current_locs[idx] = directions_dict[current_loc][turnings[turning_idx]]
-    #     turning_idx = (turning_idx + 1) % len(turnings)
-    #     steps += 1
 
     lengths = []
     for idx, current_loc in enumerate(current_locs):
