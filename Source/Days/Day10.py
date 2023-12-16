@@ -92,19 +92,13 @@ def iterate_crawler(pos, dirs, data, procedures, path):
     for dir in dirs:
         is_success, new_pos, new_dir = test_dir(pos, dir, data, procedures)
         if is_success and new_pos not in path:
-            #print_loop(new_pos, data)
             path.append(new_pos)
             return new_pos, new_dir
     return pos, new_dir
 
 def crawl_and_score_loop(start, data):
     procedures = create_procedures_dict()
-    
-    #x, y = start
     crawler1_pos = start
-    #crawler2_pos = start
-    #last_pos = start
-
     steps = 1
     path = []
 
@@ -118,7 +112,6 @@ def crawl_and_score_loop(start, data):
     dirs = start_dirs
     crawler1_pos, new_dir = iterate_crawler(crawler1_pos, dirs, data, procedures, path)
     dirs = [new_dir]
-    #while(crawler1_pos != crawler2_pos or data[crawler1_pos[1]][crawler1_pos[0]] == 'S'):
     while(data[crawler1_pos[1]][crawler1_pos[0]] != 'S'):
         new_pos, new_dir = iterate_crawler(crawler1_pos, dirs, data, procedures, path)
         crawler1_pos = new_pos
@@ -127,55 +120,8 @@ def crawl_and_score_loop(start, data):
     print(int(steps * 0.5))
     return path
 
-def find_enclosed_bad(path, data):
-    enclosed = []
-    enclosed_count = 0
-
-    def test_dir_for_enclosed(pos, dir, compontent, not_enclosed_val, test_func):
-        test_pos = pos
-        while test_pos not in path:
-                if test_func(test_pos, compontent, not_enclosed_val):
-                    return False
-                test_pos = add_tuple(test_pos, dir)
-        return True
-
-    def test_reaches_bounds(pos, compontent, target_val):
-        return pos[compontent] == target_val
-    def test_neighbouring_free(pos, compontent, target_val):
-        return pos not in enclosed and pos not in path
-
-    for idx, entry in enumerate(data):
-        for jdx, char in enumerate(entry):
-            pos = (jdx, idx)
-
-            if pos in path:
-                continue
-
-            is_enclosed_left = test_dir_for_enclosed(pos, left, 0, -1, test_reaches_bounds)
-            is_enclosed_right = test_dir_for_enclosed(pos, right, 0, len(entry), test_reaches_bounds)
-            is_enclosed_up = test_dir_for_enclosed(pos, up, 1, 0, test_reaches_bounds)
-            is_enclosed_down = test_dir_for_enclosed(pos, down, 1, len(data), test_reaches_bounds)
-
-            if is_enclosed_left and is_enclosed_right and is_enclosed_up and is_enclosed_down:
-                enclosed.append(pos)
-                #enclosed_count += 1
-    
-    for current_enclosed in enclosed:
-            is_enclosed_left = test_dir_for_enclosed(current_enclosed, left, 0, -1, test_neighbouring_free)
-            is_enclosed_right = test_dir_for_enclosed(current_enclosed, right, 0, len(entry), test_neighbouring_free)
-            is_enclosed_up = test_dir_for_enclosed(current_enclosed, up, 1, 0, test_neighbouring_free)
-            is_enclosed_down = test_dir_for_enclosed(current_enclosed, down, 1, len(data), test_neighbouring_free)
-
-            if not is_enclosed_left or not is_enclosed_right or not is_enclosed_up or not is_enclosed_down:
-                enclosed.remove(current_enclosed)
-
-    print_loop(path, enclosed, data)
-    print(enclosed_count)
-
 def shoelace_formula(path, is_absolute=True):
-    #nbCoordinates = len(polygonBoundary)
     path_length = len(path)
-    #shoelace_area = [(path[i+1][0] - path[i][0]) * (path[i+1][1] + path[i][1]) for i in range(path_length)]
     shoelace_area = [path[i][1] * (path[i - 1][0] - path[(i + 1) % path_length][0]) for i in range(0, path_length)]
 
     shoelace_sum = int(sum(shoelace_area) / 2.)
